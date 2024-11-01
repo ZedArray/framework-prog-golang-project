@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 )
 
 type item struct {
@@ -53,10 +55,19 @@ func hp_change_char(c *character, hp_change int) {
 // 	}
 // }
 
+func tutorial() {
+	scanner := bufio.NewScanner(os.Stdin)
+	if scanner.Scan() {
+		line := scanner.Text()
+		fmt.Printf("Input was: %q\n", line)
+	}
+}
+
 func main() {
 	fmt.Println("Insert player name: ")
 	var nameinput string
 	fmt.Scan(&nameinput)
+	// fmt.Print(nameinput)
 	var player = create_player(nameinput)
 
 	fmt.Println("Player Name: ", player.playername)
@@ -65,33 +76,66 @@ func main() {
 	fmt.Println("Player Equipped Armor: ", player.equipped_armor)
 	fmt.Println("Player Inventory: ", player.inventory)
 
-	for {
-		fmt.Println("Pick where you want to go")
-		fmt.Println("1. The Forest (lvl 1 area)")
-		fmt.Println("2. The Mountain (lvl 2 area)")
-		fmt.Println("3. The Dungeon (lvl 3 area)")
-		fmt.Println("4. The Shop")
-		fmt.Println("5. The Tavern (heal to full health)")
+	fmt.Println("Would you like to go play the tutorial? (It's basic rpg)")
+	fmt.Println("1. Yes")
+	fmt.Println("2. No")
 
-		var pin int
-		fmt.Scan(&pin)
+	// fmt.Scan(&pin)
 
-		switch pin {
-		case 1:
-			fmt.Println("Coming Soon")
-		case 2:
-			fmt.Println("Coming Soon")
-		case 3:
-			fmt.Println("Coming Soon")
-		case 4:
-			fmt.Println("Coming Soon")
-		case 5:
-			hp_change_char(&player, 100)
-			fmt.Println("Fully Healed")
-			fmt.Println(player.playerhp)
-		}
+	// scanner := bufio.NewScanner(os.Stdin)
+	// scanner.Scan()
+	// if scanner.Scan() {
+	// 	line := scanner.Text()
+	// 	fmt.Printf("Input was: %q\n", line)
+	// }
 
-	}
+	fmt.Scanln()
+	fmt.Scanln()
+	// if pin == 1 {
+	// 	scanner := bufio.NewScanner(os.Stdin)
+	// 	fmt.Println(scanner)
+	// 	tutorial()
+	// }
+
+	// for {
+	// 	// var pin int
+	// 	// fmt.Println("Would you like to go play the tutorial? (It's basic rpg)")
+	// 	// fmt.Println("1. Yes")
+	// 	// fmt.Println("2. No")
+
+	// 	// fmt.Scan(&pin)
+	// 	// if pin == 1 {
+	// 	// 	scanner := bufio.NewScanner(os.Stdin)
+	// 	// 	fmt.Println(scanner)
+	// 	// 	tutorial()
+	// 	// }
+
+	// 	fmt.Println("Pick where you want to go")
+	// 	fmt.Println("1. The Forest (lvl 1 area)")
+	// 	fmt.Println("2. The Mountain (lvl 2 area)")
+	// 	fmt.Println("3. The Dungeon (lvl 3 area)")
+	// 	fmt.Println("4. The Shop")
+	// 	fmt.Println("5. The Tavern (heal to full health)")
+	// 	fmt.Println("(Type the number you want to go to)")
+
+	// 	fmt.Scan(&pin)
+
+	// 	switch pin {
+	// 	case 1:
+	// 		fmt.Println("Coming Soon")
+	// 	case 2:
+	// 		fmt.Println("Coming Soon")
+	// 	case 3:
+	// 		fmt.Println("Coming Soon")
+	// 	case 4:
+	// 		fmt.Println("Coming Soon")
+	// 	case 5:
+	// 		hp_change_char(&player, 100)
+	// 		fmt.Println("Fully Healed")
+	// 		fmt.Println(player.playerhp)
+	// 	}
+
+	// }
 }
 
 // changed := strconv.Itoa(player.playerhp)
