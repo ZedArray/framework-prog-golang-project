@@ -1,145 +1,124 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
+	"sync"
+	"time"
 )
 
-type item struct {
-	item_name   string
-	item_type   string
-	hp_modifier int
+const conferenceTickets int = 50
+
+var conferenceName = "Go Conference"
+var remainingTickets uint = 50
+var bookings = make([]UserData, 0)
+
+type UserData struct {
+	firstName       string
+	lastName        string
+	email           string
+	numberOfTickets uint
 }
 
-type character struct {
-	playername      string
-	playerhp        int
-	equipped_weapon item
-	equipped_armor  item
-	inventory       []item
-}
-
-func create_player(name string) character {
-	var c character
-	c.playername = name
-	c.playerhp = 100
-	hp_potion := create_item("HP", "Potion", 20)
-	c.inventory = append(c.inventory, hp_potion, hp_potion, hp_potion)
-	c.equipped_armor = create_item("Beginner", "Armor", 20)
-	c.equipped_weapon = create_item("Beginner", "Sword", 5)
-
-	return c
-}
-
-func create_item(it_name string, it_type string, hp_mod int) item {
-	var i item
-	i.item_name = it_name
-	i.item_type = it_type
-	i.hp_modifier = hp_mod
-
-	return i
-}
-
-func hp_change_char(c *character, hp_change int) {
-	c.playerhp += hp_change
-
-	if c.playerhp >= 100 {
-		c.playerhp = 100
-	}
-}
-
-// func check(e error) {
-// 	if e != nil {
-// 		panic(e)
-// 	}
-// }
-
-func tutorial() {
-	scanner := bufio.NewScanner(os.Stdin)
-	if scanner.Scan() {
-		line := scanner.Text()
-		fmt.Printf("Input was: %q\n", line)
-	}
-}
+var wg = sync.WaitGroup{}
 
 func main() {
-	fmt.Println("Insert player name: ")
-	var nameinput string
-	fmt.Scan(&nameinput)
-	// fmt.Print(nameinput)
-	var player = create_player(nameinput)
 
-	fmt.Println("Player Name: ", player.playername)
-	fmt.Println("Player HP: ", player.playerhp)
-	fmt.Println("Player Equipped Weapon: ", player.equipped_weapon)
-	fmt.Println("Player Equipped Armor: ", player.equipped_armor)
-	fmt.Println("Player Inventory: ", player.inventory)
-
-	fmt.Println("Would you like to go play the tutorial? (It's basic rpg)")
-	fmt.Println("1. Yes")
-	fmt.Println("2. No")
-
-	// fmt.Scan(&pin)
-
-	// scanner := bufio.NewScanner(os.Stdin)
-	// scanner.Scan()
-	// if scanner.Scan() {
-	// 	line := scanner.Text()
-	// 	fmt.Printf("Input was: %q\n", line)
-	// }
-
-	fmt.Scanln()
-	fmt.Scanln()
-	// if pin == 1 {
-	// 	scanner := bufio.NewScanner(os.Stdin)
-	// 	fmt.Println(scanner)
-	// 	tutorial()
-	// }
+	greetUsers()
 
 	// for {
-	// 	// var pin int
-	// 	// fmt.Println("Would you like to go play the tutorial? (It's basic rpg)")
-	// 	// fmt.Println("1. Yes")
-	// 	// fmt.Println("2. No")
+	firstName, lastName, email, userTickets := getUserInput()
+	isValidName, isValidEmail, isValidTicketNumber := validateUserInput(firstName, lastName, email, userTickets)
 
-	// 	// fmt.Scan(&pin)
-	// 	// if pin == 1 {
-	// 	// 	scanner := bufio.NewScanner(os.Stdin)
-	// 	// 	fmt.Println(scanner)
-	// 	// 	tutorial()
-	// 	// }
+	if isValidName && isValidEmail && isValidTicketNumber {
 
-	// 	fmt.Println("Pick where you want to go")
-	// 	fmt.Println("1. The Forest (lvl 1 area)")
-	// 	fmt.Println("2. The Mountain (lvl 2 area)")
-	// 	fmt.Println("3. The Dungeon (lvl 3 area)")
-	// 	fmt.Println("4. The Shop")
-	// 	fmt.Println("5. The Tavern (heal to full health)")
-	// 	fmt.Println("(Type the number you want to go to)")
+		bookTicket(userTickets, firstName, lastName, email)
 
-	// 	fmt.Scan(&pin)
+		wg.Add(1)
+		go sendTicket(userTickets, firstName, lastName, email)
 
-	// 	switch pin {
-	// 	case 1:
-	// 		fmt.Println("Coming Soon")
-	// 	case 2:
-	// 		fmt.Println("Coming Soon")
-	// 	case 3:
-	// 		fmt.Println("Coming Soon")
-	// 	case 4:
-	// 		fmt.Println("Coming Soon")
-	// 	case 5:
-	// 		hp_change_char(&player, 100)
-	// 		fmt.Println("Fully Healed")
-	// 		fmt.Println(player.playerhp)
-	// 	}
+		firstNames := getFirstNames()
+		fmt.Printf("The first names of bookings are: %v\n", firstNames)
 
-	// }
+		if remainingTickets == 0 {
+			// end program
+			fmt.Println("Our conference is booked out. Come back next year.")
+			// break
+		}
+	} else {
+		if !isValidName {
+			fmt.Println("first name or last name you entered is too short")
+		}
+		if !isValidEmail {
+			fmt.Println("email address you entered doesn't contain @ sign")
+		}
+		if !isValidTicketNumber {
+			fmt.Println("number of tickets you entered is invalid")
+		}
+	}
+	//}
+	wg.Wait()
 }
 
-// changed := strconv.Itoa(player.playerhp)
+func sendTicket(userTickets uint, firstName string, lastName string, email string) {
+	var ticket = fmt.Sprintf("%v tickets for %v %v", userTickets, firstName, lastName)
+	fmt.Println("#################")
+	fmt.Printf("Sending ticket:\n %v \nto email address %v\n", ticket, email)
+	fmt.Println("#################")
+	time.Sleep(10 * time.Second)
+	fmt.Println("#################")
+	fmt.Printf("%v ticket(s) have been sent\nto email address %v\n", ticket, email)
+	fmt.Println("#################")
+	wg.Done()
+}
 
-// toFile := []byte(player.playername + " " + changed)
-// err := os.WriteFile("text.txt", toFile, 0644)
-// check(err)
+func getFirstNames() []string {
+	firstNames := []string{}
+	for _, booking := range bookings {
+		firstNames = append(firstNames, booking.firstName)
+	}
+	return firstNames
+}
+
+func bookTicket(userTickets uint, firstName string, lastName string, email string) {
+	remainingTickets = remainingTickets - userTickets
+
+	var userData = UserData{
+		firstName:       firstName,
+		lastName:        lastName,
+		email:           email,
+		numberOfTickets: userTickets,
+	}
+
+	bookings = append(bookings, userData)
+	fmt.Printf("List of bookings is %v\n", bookings)
+
+	fmt.Printf("Thank you %v %v for booking %v tickets. You will receive a confirmation email at %v\n", firstName, lastName, userTickets, email)
+	fmt.Printf("%v tickets remaining for %v\n", remainingTickets, conferenceName)
+}
+
+func getUserInput() (string, string, string, uint) {
+	var firstName string
+	var lastName string
+	var email string
+	var userTickets uint
+
+	fmt.Println("Enter your first name: ")
+	fmt.Scan(&firstName)
+
+	fmt.Println("Enter your last name: ")
+	fmt.Scan(&lastName)
+
+	fmt.Println("Enter your email address: ")
+	fmt.Scan(&email)
+
+	fmt.Println("Enter number of tickets: ")
+	fmt.Scan(&userTickets)
+
+	return firstName, lastName, email, userTickets
+}
+
+func greetUsers() {
+	fmt.Printf("Welcome to %v booking application\n", conferenceName)
+	fmt.Printf("We have total of %v tickets and %v are still available.\n", conferenceTickets, remainingTickets)
+	fmt.Println("Get your tickets here to attend")
+}
